@@ -419,6 +419,7 @@ var
   PIDL1, PIDL2: pItemIDList;
   Size, MaxSize: integer;
   i: integer;
+  Ret: HResult;
 begin
   Result := '';
   if (Files.Count = 0) then
@@ -433,9 +434,12 @@ begin
     for i := 0 to Files.Count-1 do
     begin
       WidePath := ExtractFilePath(Files[i]);
-      if (DesktopFolder.ParseDisplayName(0, nil, PWideChar(WidePath), PULONG(nil)^,
-        PIDL, PULONG(nil)^) <> NOERROR) then
-        raise Exception.CreateFmt(sBadFilename, [WidePath]);
+      Ret := DesktopFolder.ParseDisplayName(0, nil, PWideChar(WidePath), PULONG(nil)^, PIDL, PULONG(nil)^);
+      if Ret <> NOERROR then begin
+        Exit; // EZ - happens with relative paths
+        OleError(Ret); // EZ
+        //raise Exception.CreateFmt(sBadFilename, [WidePath]);
+      end;
       try
         PIDLs.Add(PIDL);
       finally
