@@ -437,7 +437,7 @@ begin
       Ret := DesktopFolder.ParseDisplayName(0, nil, PWideChar(WidePath), PULONG(nil)^, PIDL, PULONG(nil)^);
       if Ret <> NOERROR then begin
         Exit; // EZ - happens with relative paths
-        OleError(Ret); // EZ
+        //OleError(Ret); // EZ
         //raise Exception.CreateFmt(sBadFilename, [WidePath]);
       end;
       try

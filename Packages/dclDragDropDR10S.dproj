@@ -30,9 +30,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_BplOutput>..\Library\DX10S\$(Platform)_$(Config)</DCC_BplOutput>
         <DCC_IOChecking>false</DCC_IOChecking>
-        <DCC_DcpOutput>..\Library\DX10S\$(Platform)_$(Config)</DCC_DcpOutput>
         <DCC_DcuOutput>..\Library\DX10S\$(Platform)_$(Config)</DCC_DcuOutput>
         <DCC_DebugInformation>1</DCC_DebugInformation>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
@@ -111,9 +109,9 @@
                     <Source Name="MainSource">dclDragDropDR10S.dpk</Source>
                 </Source>
                 <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclIPIndyImpl230.bpl">IP Abstraction Indy Implementation Design Time</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k230.bpl">Microsoft Office 2000 Beispiele für gekapselte Komponenten für Automatisierungsserver</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp230.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclIPIndyImpl230.bpl">IP Abstraction Indy Implementation Design Time</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Platforms>
@@ -136,16 +134,7 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployClass Name="DependencyModule">
-                    <Platform Name="Win32">
-                        <Operation>0</Operation>
-                        <Extensions>.dll;.bpl</Extensions>
-                    </Platform>
-                    <Platform Name="OSX32">
-                        <Operation>1</Operation>
-                        <Extensions>.dylib</Extensions>
-                    </Platform>
-                </DeployClass>
+                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -459,7 +448,16 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="ProjectiOSDeviceResourceRules"/>
+                <DeployClass Name="DependencyModule">
+                    <Platform Name="Win32">
+                        <Operation>0</Operation>
+                        <Extensions>.dll;.bpl</Extensions>
+                    </Platform>
+                    <Platform Name="OSX32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                </DeployClass>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
@@ -475,3 +473,11 @@
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
 </Project>
+
+<!-- EurekaLog First Line
+[Exception Log]
+EurekaLog Version=7007
+Activate=0
+DeleteMapAfterCompile=0
+Encrypt Password=""
+EurekaLog Last Line -->
