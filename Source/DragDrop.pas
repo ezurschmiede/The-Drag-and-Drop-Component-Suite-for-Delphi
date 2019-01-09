@@ -2306,11 +2306,24 @@ begin
         // If there are no events for 500mS start drag without further ado.
         if (MsgWaitForMultipleObjects(0, nil^, False, DragDropDragDelayMax,
           QS_INPUT) = WAIT_TIMEOUT) then
+        begin
+          // EZ - fix start: lets check if MouseButton got released during the wait time. Important for slower solutions like VirtualUI HTML5 remoting
+          // - but do not eat mouse button messages (so we don't break popup menus etc).
+          if (PeekMessage(Msg, 0, WM_LBUTTONDOWN, WM_LBUTTONUP, PM_NOREMOVE)) or
+            (PeekMessage(Msg, 0, WM_RBUTTONDOWN, WM_RBUTTONUP, PM_NOREMOVE)) or
+            (PeekMessage(Msg, 0, WM_MBUTTONDOWN, WM_MBUTTONUP, PM_NOREMOVE)) then
+          begin
+            // Mouse button was changed - bail out.
+            exit;
+          end;
+          // EZ - fix end
+
           if (DragDropAutoDrag) then
           begin
             Result := True;
             exit;
           end;
+        end;
       end;
 
       // Bail out if someone else has captured the mouse.
