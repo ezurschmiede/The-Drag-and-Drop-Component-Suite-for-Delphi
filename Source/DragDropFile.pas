@@ -17,7 +17,7 @@ interface
 
 uses
   {$IF CompilerVersion >= 23.0}
-  System.SysUtils,System.Classes,System.Win.ComObj,System.RTLConsts,
+  System.SysUtils,System.Classes,System.Win.ComObj,System.RTLConsts,Contnrs,
   {$IF CompilerVersion >= 25.0}System.AnsiStrings,{$IFEND}
   WinApi.Windows,WinApi.ShlObj,WinApi.ActiveX,
   Vcl.Controls,Vcl.Graphics,
@@ -569,6 +569,8 @@ type
     FAnsiFileGroupDescriptorClipboardFormat: TAnsiFileGroupDescriptorClipboardFormat;
     FUnicodeFileGroupDescriptorClipboardFormat: TUnicodeFileGroupDescriptorClipboardFormat;
     FHasContents: boolean;
+    function GetFileNamesOwnsObjects: Boolean;
+    procedure SetFileNamesOwnsObjects(const Value: Boolean);
   protected
     class procedure RegisterCompatibleFormats; override;
     procedure SetFileNames(const Value: TStrings);
@@ -578,6 +580,8 @@ type
   public
     constructor Create(AOwner: TDragDropComponent); override;
     destructor Destroy; override;
+
+    property FileNamesOwnsObjects: Boolean read GetFileNamesOwnsObjects write SetFileNamesOwnsObjects;
 
     function Assign(Source: TClipboardFormat): boolean; override;
     function AssignTo(Dest: TClipboardFormat): boolean; override;
@@ -2702,7 +2706,9 @@ type
   TFileDescriptorToFilenameStrings = class(TStrings)
   private
     FFileDescriptors: TMemoryList;
-    FObjects: TList;
+    FObjects: TObjectList;
+    function GetOwnsObjects: Boolean;
+    procedure SetOwnsObjects(const Value: Boolean);
   protected
     function Get(Index: Integer): string; override;
     function GetCount: Integer; override;
@@ -2715,13 +2721,16 @@ type
     procedure Delete(Index: Integer); override;
     procedure Insert(Index: Integer; const S: string); override;
     procedure Assign(Source: TPersistent); override;
+
+    property OwnsObjects: Boolean read GetOwnsObjects write SetOwnsObjects default false;
   end;
 
 constructor TFileDescriptorToFilenameStrings.Create(AFileDescriptors: TMemoryList);
 begin
   inherited Create;
   FFileDescriptors := AFileDescriptors;
-  FObjects := TList.Create;
+  FObjects := TObjectList.Create;
+  FObjects.OwnsObjects := false;
 end;
 
 destructor TFileDescriptorToFilenameStrings.Destroy;
@@ -2795,11 +2804,21 @@ begin
   FObjects[Index] := AObject;
 end;
 
+procedure TFileDescriptorToFilenameStrings.SetOwnsObjects(const Value: Boolean);
+begin
+  FObjects.OwnsObjects := Value;
+end;
+
 function TFileDescriptorToFilenameStrings.GetObject(Index: Integer): TObject;
 begin
   Result := FObjects[Index];
 end;
 
+
+function TFileDescriptorToFilenameStrings.GetOwnsObjects: Boolean;
+begin
+  Result := FObjects.OwnsObjects;
+end;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -2827,6 +2846,12 @@ end;
 procedure TVirtualFileStreamDataFormat.SetFileNames(const Value: TStrings);
 begin
   FFileNames.Assign(Value);
+end;
+
+procedure TVirtualFileStreamDataFormat.SetFileNamesOwnsObjects(
+  const Value: Boolean);
+begin
+  TFileDescriptorToFilenameStrings(FFileNames).OwnsObjects := Value;
 end;
 
 {$IFOPT R+}
@@ -3019,6 +3044,11 @@ end;
 function TVirtualFileStreamDataFormat.GetFileDescriptor(Index: integer): PFileDescriptorW;
 begin
   Result := PFileDescriptorW(FFileDescriptors[Index]);
+end;
+
+function TVirtualFileStreamDataFormat.GetFileNamesOwnsObjects: Boolean;
+begin
+  Result := TFileDescriptorToFilenameStrings(FFileNames).OwnsObjects;
 end;
 
 function TVirtualFileStreamDataFormat.GetOnGetStream: TOnGetStreamEvent;
